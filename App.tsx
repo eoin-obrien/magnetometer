@@ -6,18 +6,23 @@ import { Text, View } from "react-native";
 import useMagnetometer from "./hooks/useMagnetometer";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { WaveMaterial } from "./hooks/WaveMaterial";
+import { HaloMaterial } from "./hooks/HaloMaterial";
 
 function Box(props: any) {
-  const ref = useRef<any>()
-  const { width, height } = useThree((state) => state.viewport)
-  useFrame((state, delta) => (ref.current.time += delta))
+  const ref = useRef<any>();
+  const { width, height, aspect } = useThree((state) => state.viewport);
+  useFrame((state, delta) => (ref.current.time += delta));
   return (
     <mesh scale={[width, height, 1]}>
       <planeGeometry />
-      <waveMaterial ref={ref} key={WaveMaterial.key} toneMapped={true} colorStart={'#505050'} colorEnd={'black'} />
+      <haloMaterial
+        ref={ref}
+        key={HaloMaterial.key}
+        toneMapped={true}
+        aspect={aspect}
+      />
     </mesh>
-  )
+  );
 }
 
 export default function App() {
@@ -28,16 +33,13 @@ export default function App() {
     <View className="flex-1 items-center justify-center bg-slate-800">
       <View className="w-full h-full absolute">
         <Canvas>
-          <ambientLight />
-          <pointLight position={[10, 10, 10]} />
-          <Box position={[-1.2, 0, 0]} />
-          <Box position={[1.2, 0, 0]} />
+          <Box />
         </Canvas>
       </View>
       <Text className="text-[56px] text-slate-900 dark:text-white">
         {Math.round(magneticFluxDensity)}
       </Text>
-      <Text className="text-xl text-slate-600 dark:text-slate-300">
+      <Text className="text-xl text-slate-600 dark:text-slate-300 bg-purple">
         &micro;T
       </Text>
       {/* <View className="animate-ping absolute inline-flex h-64 w-64 rounded-full border-8 border-indigo-500 opacity-75"></View> */}
