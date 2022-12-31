@@ -1,14 +1,16 @@
-import * as THREE from "three";
-import { extend, Object3DNode, ShaderMaterialProps } from "@react-three/fiber";
 import { shaderMaterial } from "@react-three/drei";
+import { extend, ShaderMaterialProps } from "@react-three/fiber";
 import glsl from "glslify";
+import colors from "tailwindcss/colors";
+import * as THREE from "three";
 
-// This shader is from magician0809 on Shadertoy: https://www.shadertoy.com/view/3tBGRm
+// This shader is adapted from magician0809 on Shadertoy: https://www.shadertoy.com/view/3tBGRm
 const HaloMaterial = shaderMaterial(
   {
     time: 0,
-    colorStart: new THREE.Color("black"),
-    colorEnd: new THREE.Color(88 / 255, 28 / 255, 135 / 255),
+    color1: new THREE.Color(colors.purple[500]),
+    color2: new THREE.Color(colors.sky[500]),
+    color3: new THREE.Color(colors.indigo[900]),
     aspect: 1,
     magnitude: 0,
   },
@@ -22,56 +24,56 @@ const HaloMaterial = shaderMaterial(
         vUv = uv;
       }`,
   glsl`
-      #pragma glslify: snoise3 = require(glsl-noise/simplex/3d.glsl) 
       uniform float time;
       uniform vec3 colorStart;
       uniform vec3 colorEnd;
       uniform float aspect;
       uniform float magnitude;
       varying vec2 vUv;
-      const int numOctaves = 3;
       
-      const vec3 color1 = vec3(0.611765, 0.262745, 0.996078);
-      const vec3 color2 = vec3(0.298039, 0.760784, 0.913725);
-      const vec3 color3 = vec3(0.062745, 0.078431, 0.600000);
+      uniform vec3 color1;
+      uniform vec3 color2;
+      uniform vec3 color3;
+      
       const float innerRadius = 0.6;
       const float noiseScale = 0.65;
 
       #define BG_COLOR (vec3(sin(time)*0.5+0.5) * 0.0 + vec3(0.0))
       
-      float light1(float intensity, float attenuation, float dist)
-      {
-          return intensity / (1.0 + dist * attenuation);
+      float light1(float intensity, float attenuation, float dist) {
+        return intensity / (1.0 + dist * attenuation);
       }
-      float light2(float intensity, float attenuation, float dist)
-      {
-          return intensity / (1.0 + dist * dist * attenuation);
+
+      float light2(float intensity, float attenuation, float dist) {
+        return intensity / (1.0 + dist * dist * attenuation);
       }
       
-      vec4 extractAlpha(vec3 colorIn)
-{
-    vec4 colorOut;
-    float maxValue = min(max(max(colorIn.r, colorIn.g), colorIn.b), 1.0);
-    if (maxValue > 1e-5)
-    {
-        colorOut.rgb = colorIn.rgb * (1.0 / maxValue);
-        colorOut.a = maxValue;
-    }
-    else
-    {
-        colorOut = vec4(0.0);
-    }
-    return colorOut;
-}
+      vec4 extractAlpha(vec3 colorIn) {
+        vec4 colorOut;
+        float maxValue = min(max(max(colorIn.r, colorIn.g), colorIn.b), 1.0);
+        if (maxValue > 1e-5) {
+          colorOut.rgb = colorIn.rgb * (1.0 / maxValue);
+          colorOut.a = maxValue;
+        }
+        else {
+          colorOut = vec4(0.0);
+        }
+        return colorOut;
+      }
+
+      vec2 scaleUv(vec2 uv) {
+        vec2 scaledUv = uv - 0.5;
+        if (aspect > 1.0) {
+          scaledUv *= vec2(aspect * aspect, aspect);
+        } else {
+          scaledUv /= vec2(aspect, aspect * aspect);
+        }
+        return scaledUv;
+      }
       
       void main() {
         // Scale UV for portrait and landscape orientations
-        vec2 uv = vUv - 0.5;
-        if (aspect > 1.0) {
-          uv *= vec2(aspect * aspect, aspect);
-        } else {
-          uv /= vec2(aspect, aspect * aspect);
-        }
+        vec2 uv = scaleUv(vUv);
 
         float ang = atan(uv.y, uv.x);
         float len = length(uv);
@@ -97,7 +99,7 @@ const HaloMaterial = shaderMaterial(
         vec2 pos = vec2(cos(a), sin(a)) * r0;
         d = distance(uv, pos);
         v1 = light2(1.5 * intensity, 5.0, d);
-        v1 *= light1(1.0, 50.0 , d0);
+        v1 *= light1(1.0 * intensity, 50.0 , d0);
         
         // back decay
         v2 = smoothstep(1.0, mix(innerRadius, 1.0, n0 * 0.5), len);
@@ -113,8 +115,10 @@ const HaloMaterial = shaderMaterial(
         col.rgb = clamp(col.rgb, 0.0, 1.0);
         
         gl_FragColor = extractAlpha(col);
+
         vec3 bg = BG_COLOR;
-        gl_FragColor.rgb = mix(bg, gl_FragColor.rgb, gl_FragColor.a); //normal blend
+        gl_FragColor.rgb = mix(bg, gl_FragColor.rgb, gl_FragColor.a); // normal blend
+
         #include <tonemapping_fragment>
         #include <encodings_fragment>
       }`
@@ -126,7 +130,13 @@ extend({ HaloMaterial });
 // Add types to ThreeElements elements so primitives pick up on it
 declare module "@react-three/fiber" {
   interface ThreeElements {
-    haloMaterial: ShaderMaterialProps & { aspect: number; magnitude: number };
+    haloMaterial: ShaderMaterialProps & {
+      aspect: number;
+      magnitude: number;
+      color1?: THREE.Color;
+      color2?: THREE.Color;
+      color3?: THREE.Color;
+    };
   }
 }
 
