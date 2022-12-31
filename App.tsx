@@ -1,14 +1,13 @@
-import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
+import { ExpoWebGLRenderingContext } from "expo-gl";
 import { StatusBar } from "expo-status-bar";
-import { useColorScheme } from "nativewind";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Text, View } from "react-native";
 import useMagnetometer from "./hooks/useMagnetometer";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { HaloMaterial } from "./hooks/HaloMaterial";
 
-function Box(props: any) {
+function Halo({ magnitude }: ReturnType<typeof useMagnetometer>) {
   const ref = useRef<any>();
   const { width, height, aspect } = useThree((state) => state.viewport);
   useFrame((state, delta) => (ref.current.time += delta));
@@ -20,28 +19,23 @@ function Box(props: any) {
         key={HaloMaterial.key}
         toneMapped={true}
         aspect={aspect}
+        magnitude={magnitude}
       />
     </mesh>
   );
 }
 
 export default function App() {
-  const { colorScheme, toggleColorScheme } = useColorScheme();
-  const magneticFluxDensity = useMagnetometer();
+  const { magnitude } = useMagnetometer();
   return (
-    // <View className="flex-1 items-center justify-center bg-white dark:bg-slate-800">
-    <View className="flex-1 items-center justify-center bg-slate-800">
+    <View className="flex-1 items-center justify-center bg-black">
       <View className="w-full h-full absolute">
-        <Canvas>
-          <Box />
+        <Canvas orthographic gl={{powerPreference: 'low-power'}}>
+          <Halo magnitude={magnitude} />
         </Canvas>
       </View>
-      <Text className="text-[56px] text-slate-900 dark:text-white">
-        {Math.round(magneticFluxDensity)}
-      </Text>
-      <Text className="text-xl text-slate-600 dark:text-slate-300 bg-purple">
-        &micro;T
-      </Text>
+      <Text className="text-[56px] text-white">{Math.round(magnitude)}</Text>
+      <Text className="text-xl text-slate-300 bg-purple">&micro;T</Text>
       {/* <View className="animate-ping absolute inline-flex h-64 w-64 rounded-full border-8 border-indigo-500 opacity-75"></View> */}
       <StatusBar style="auto" />
     </View>

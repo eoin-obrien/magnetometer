@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { extend, Object3DNode } from "@react-three/fiber";
+import { extend, Object3DNode, ShaderMaterialProps } from "@react-three/fiber";
 import { shaderMaterial } from "@react-three/drei";
 import glsl from "glslify";
 
@@ -10,6 +10,7 @@ const HaloMaterial = shaderMaterial(
     colorStart: new THREE.Color("black"),
     colorEnd: new THREE.Color(88 / 255, 28 / 255, 135 / 255),
     aspect: 1,
+    magnitude: 0,
   },
   glsl`
       varying vec2 vUv;
@@ -26,6 +27,7 @@ const HaloMaterial = shaderMaterial(
       uniform vec3 colorStart;
       uniform vec3 colorEnd;
       uniform float aspect;
+      uniform float magnitude;
       varying vec2 vUv;
       const int numOctaves = 3;
       
@@ -63,18 +65,26 @@ const HaloMaterial = shaderMaterial(
 }
       
       void main() {
-        vec2 uv = (vUv - 0.5) / aspect * vec2(1.0, 1.0 / aspect);
+        vec2 uv = vUv - 0.5;
+        if (aspect > 1.0) {
+          uv *= vec2(aspect * aspect, aspect);
+        } else {
+          uv /= vec2(aspect, aspect * aspect);
+        }
+
         float ang = atan(uv.y, uv.x);
         float len = length(uv);
         float v0, v1, v2, v3, cl;
         float r0, d0, n0;
         float r, d;
+
+        float intensity = clamp(magnitude / 250.0, 0.0, 1.0);
         
         // ring
-        n0 = snoise3( vec3(uv * noiseScale, time * 0.5) ) * 0.5 + 0.5;
-        r0 = mix(mix(innerRadius, 1.0, 0.4), mix(innerRadius, 1.0, 0.6), n0);
+        n0 = 1.0;
+        r0 = mix(innerRadius, 1.0, 0.5);
         d0 = distance(uv, r0 / len * uv);
-        v0 = light1(1.0, 10.0, d0);
+        v0 = light1(1.0 * intensity, 10.0, d0);
         v0 *= smoothstep(r0 * 1.05, r0, len);
         cl = cos(ang + time * 2.0) * 0.5 + 0.5;
         
@@ -82,7 +92,7 @@ const HaloMaterial = shaderMaterial(
         float a = time * -1.0;
         vec2 pos = vec2(cos(a), sin(a)) * r0;
         d = distance(uv, pos);
-        v1 = light2(1.5, 5.0, d);
+        v1 = light2(1.5 * intensity, 5.0, d);
         v1 *= light1(1.0, 50.0 , d0);
         
         // back decay
@@ -112,7 +122,7 @@ extend({ HaloMaterial });
 // Add types to ThreeElements elements so primitives pick up on it
 declare module "@react-three/fiber" {
   interface ThreeElements {
-    haloMaterial: Object3DNode<THREE.ShaderMaterial, typeof HaloMaterial>;
+    haloMaterial: ShaderMaterialProps & { aspect: number, magnitude: number };
   }
 }
 
