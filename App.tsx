@@ -5,9 +5,13 @@ import { Text, View } from "react-native";
 import useMagnetometer from "./hooks/useMagnetometer";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { HaloMaterial } from "./hooks/HaloMaterial";
+import { HaloMaterial } from "./src/HaloMaterial";
 
-function Halo({ magnitude }: ReturnType<typeof useMagnetometer>) {
+interface HaloProps {
+  magnitude: number;
+}
+
+function Halo({ magnitude }: HaloProps) {
   const ref = useRef<any>();
   const { width, height, aspect } = useThree((state) => state.viewport);
   useFrame((state, delta) => (ref.current.time += delta));
@@ -29,8 +33,8 @@ export default function App() {
   const { magnitude } = useMagnetometer();
   return (
     <View className="flex-1 items-center justify-center bg-black">
-      <View className="w-full h-full absolute">
-        <Canvas orthographic gl={{powerPreference: 'low-power'}}>
+      <View className="w-full h-full m-10 absolute">
+        <Canvas orthographic gl={{ powerPreference: "low-power" }}>
           <Halo magnitude={magnitude} />
         </Canvas>
       </View>

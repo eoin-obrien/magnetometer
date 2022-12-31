@@ -65,6 +65,7 @@ const HaloMaterial = shaderMaterial(
 }
       
       void main() {
+        // Scale UV for portrait and landscape orientations
         vec2 uv = vUv - 0.5;
         if (aspect > 1.0) {
           uv *= vec2(aspect * aspect, aspect);
@@ -78,7 +79,10 @@ const HaloMaterial = shaderMaterial(
         float r0, d0, n0;
         float r, d;
 
-        float intensity = clamp(magnitude / 250.0, 0.0, 1.0);
+        float min_input = 0.;
+        float max_input = 1000.;
+        float scaling_factor = 1. / log(1. + max_input - min_input);
+        float intensity = scaling_factor * log(1. + max(magnitude - min_input, 0.));
         
         // ring
         n0 = 1.0;
