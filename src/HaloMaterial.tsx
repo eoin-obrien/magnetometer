@@ -126,7 +126,7 @@ extend({ HaloMaterial });
 // Add types to ThreeElements elements so primitives pick up on it
 declare module "@react-three/fiber" {
   interface ThreeElements {
-    haloMaterial: ShaderMaterialProps & { aspect: number, magnitude: number };
+    haloMaterial: ShaderMaterialProps & { aspect: number; magnitude: number };
   }
 }
 
