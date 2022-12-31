@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.eoin.magnetometer"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +27,8 @@
       },
       "permissions": [
         "android.permission.HIGH_SAMPLING_RATE_SENSORS"
-      ]
+      ],
+      "package": "ai.eoin.magnetometer"
     },
     "web": {
       "favicon": "./assets/favicon.png"
