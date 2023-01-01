@@ -23,7 +23,8 @@
     "react-native": "0.70.5",
     "react-native-web": "~0.18.9",
     "three": "^0.145.0",
-    "expo-dev-client": "~2.0.1"
+    "expo-dev-client": "~2.0.1",
+    "expo-updates": "~0.15.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
