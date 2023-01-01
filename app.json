@@ -19,13 +19,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "ai.eoin.magnetometer",
-      "icon": "./assets/ios/AppIcon~ios-marketing.png"
+      "icon": "./assets/ios.png"
     },
     "android": {
-      "icon": "./assets/android/res/mipmap-xxxhdpi/ic_launcher.png",
+      "icon": "./assets/icon.png",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/android/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
-        "backgroundImage": "./assets/android/res/mipmap-xxxhdpi/ic_launcher_background.png"
+        "foregroundImage": "./assets/adaptive-foreground.png",
+        "backgroundImage": "./assets/adaptive-background.png"
       },
       "permissions": [
         "android.permission.HIGH_SAMPLING_RATE_SENSORS"
@@ -33,7 +33,7 @@
       "package": "ai.eoin.magnetometer"
     },
     "web": {
-      "favicon": "./assets/web/icon-192.png"
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
