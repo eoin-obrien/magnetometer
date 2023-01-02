@@ -1,6 +1,5 @@
 import { Magnetometer, MagnetometerMeasurement } from "expo-sensors";
-import { useState, useEffect, useRef } from "react";
-import KalmanFilter from "../src/Kalman";
+import { useEffect, useState } from "react";
 
 export default function useMagnetometer() {
   const [magnitude, setMagnitude] = useState(0);
@@ -12,7 +11,6 @@ export default function useMagnetometer() {
     };
 
     const subscription = Magnetometer.addListener(handleMeasurement);
-    // Magnetometer.setUpdateInterval(16);
     return () => {
       subscription.remove();
     };
