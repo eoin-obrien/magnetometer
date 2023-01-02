@@ -1,16 +1,15 @@
 import { shaderMaterial } from "@react-three/drei";
 import { extend, ShaderMaterialProps } from "@react-three/fiber";
 import glsl from "glslify";
-import colors from "tailwindcss/colors";
 import * as THREE from "three";
 
 // This shader is adapted from magician0809 on Shadertoy: https://www.shadertoy.com/view/3tBGRm
 const HaloMaterial = shaderMaterial(
   {
     time: 0,
-    color1: new THREE.Color(colors.purple[500]),
-    color2: new THREE.Color(colors.sky[500]),
-    color3: new THREE.Color(colors.indigo[900]),
+    color1: new THREE.Color("red"),
+    color2: new THREE.Color("green"),
+    color3: new THREE.Color("blue"),
     aspect: 1,
     magnitude: 0,
   },
